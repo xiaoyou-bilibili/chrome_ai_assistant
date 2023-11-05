@@ -1,0 +1,6 @@
+.react-flow__node-base .react-flow__handle {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background-color: #e2e2e2;
+}

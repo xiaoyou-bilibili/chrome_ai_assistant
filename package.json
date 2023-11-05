@@ -1,0 +1,33 @@
+{
+  "name": "crx-react",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@douyinfe/semi-icons": "^2.44.0",
+    "@douyinfe/semi-ui": "^2.44.0",
+    "@rollup/plugin-inject": "^5.0.5",
+    "@types/chrome": "^0.0.246",
+    "@types/node": "^20.8.6",
+    "chromadb": "^1.5.11",
+    "idb": "^7.1.1",
+    "jquery": "^3.7.1",
+    "langchain": "^0.0.167",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.0",
+    "react-router-dom": "^6.18.0",
+    "react-syntax-highlighter": "^15.5.0",
+    "remark-gfm": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vite-plugin-crx-mv3": "workspace:*"
+  }
+}
