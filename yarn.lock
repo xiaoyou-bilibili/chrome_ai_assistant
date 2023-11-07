@@ -975,6 +975,11 @@ electron-to-chromium@^1.4.535:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.553.tgz#56fd65afddbd713c52f0e95d0223b3368f520865"
   integrity sha512-HiRdtyKS2+VhiXvjhMvvxiMC33FJJqTA5EB2YHgFZW6v7HkK4Q9Ahv2V7O2ZPgAjw+MyCJVMQvigj13H8t+wvA==
 
+element-picker@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.npmmirror.com/element-picker/-/element-picker-1.0.1.tgz#8018e2c4975d8163298cbb695c0000c91e260438"
+  integrity sha512-+UWFUdKk9VQyc8T+41ngKuTkkbLbH6Hb9omYyWGmXcMXWteFQI0IM38YwBXSOYQodze+ZNLMNVtpM+UUNlPxbw==
+
 esbuild@^0.18.10:
   version "0.18.20"
   resolved "https://registry.npmmirror.com/esbuild/-/esbuild-0.18.20.tgz#4709f5a34801b43b799ab7d6d82f7284a9b7a7a6"

@@ -1,6 +1,8 @@
 import {FunctionType, HandleFunction} from "../../common/type";
 import {getSelector} from "../../common/utils";
 import { Notification } from '@douyinfe/semi-ui';
+// @ts-ignore
+import  elementsPicker from "element-picker"
 
 const functionMap = new Map([
     [FunctionType.Input, async (data: { id: string, text: string }): Promise<string> => {
@@ -24,20 +26,13 @@ const functionMap = new Map([
     }],
     [FunctionType.GetElement, (data: {}): Promise<string> => {
         return new Promise((resolve, reject) => {
-            const id = Notification.info({content: '请用右键选择元素', title: '提示', duration: 0, position: 'top', showClose: false})
-            const eventHandle = (e: MouseEvent) => {
-                e.preventDefault()
+            const id = Notification.info({content: '请选择元素并单击确认', title: '提示', duration: 0, position: 'top', showClose: false})
+            elementsPicker.init({onClick: (ele: Element)=>{
                 Notification.close(id)
-                document.removeEventListener('contextmenu', eventHandle)
-                if (e.target) {
-                    // @ts-ignore
-                    const selector = getSelector(e.target)
-                    console.log("select", selector)
-                    resolve(selector)
-                }
-                reject("元素未找到")
-            }
-            document.addEventListener('contextmenu', eventHandle);
+                let position = getSelector(ele)
+                console.log("element position", ele, position)
+                resolve(position)
+            }})
         })
     }],
     [FunctionType.Remove, async (data: {id: string}): Promise<string> => {
