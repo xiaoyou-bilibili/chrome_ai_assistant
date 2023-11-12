@@ -9,7 +9,7 @@ import ReactFlow, {
     Edge
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import {BasicParam, BasicRuleEngine, BasicStart, BasicSwitch, BasicVariable} from "./nodes/basic";
+import {BasicMemory, BasicParam, BasicRuleEngine, BasicStart, BasicSwitch, BasicVariable} from "./nodes/basic";
 import {
     ToolCallLlm,
     ToolClick, ToolGetElement, ToolGetMessage, ToolGetSelect,
@@ -28,12 +28,12 @@ import {
     IconHelpCircleStroked, IconInheritStroked,
     IconInteractiveStroked, IconMailStroked,
     IconPlay, IconSave, IconSaveStroked, IconSendStroked, IconSortStroked,
-    IconTestScoreStroked, IconTrueFalseStroked
+    IconTestScoreStroked, IconTrueFalseStroked, IconVoteVideoStroked
 } from "@douyinfe/semi-icons";
 import {executeFunction} from "./engine";
 import './edit.css'
 import {serverExecuteFunctionWarp} from "../web/server";
-import {AddData, GetData, SaveData} from "../../common/db";
+import {AddGraph, GetData, SaveData} from "../../common/db";
 import {GraphInfo} from "../../common/type";
 import {getUrlParam} from "../../common/utils";
 
@@ -62,6 +62,7 @@ function Flow() {
         basic_variable: BasicVariable,
         basic_rule_engine: BasicRuleEngine,
         basic_switch: BasicSwitch,
+        basic_memory: BasicMemory,
         tool_click: ToolClick,
         tool_input: ToolInput,
         tool_remove: ToolRemove,
@@ -72,7 +73,7 @@ function Flow() {
         tool_call_llm: ToolCallLlm,
         tool_get_message: ToolGetMessage,
         tool_get_select: ToolGetSelect,
-        tool_get_element: ToolGetElement
+        tool_get_element: ToolGetElement,
     }), []);
     // 自动给节点加上边消息
     const onConnect = useCallback((params: Edge) => setEdges((eds) => {
@@ -120,7 +121,7 @@ function Flow() {
         console.log(JSON.stringify(nodes))
         console.log(JSON.stringify(edges))
         // 判断一下是否需要全局参数
-        let baseParam = nodes.filter(node => node.type == 'basic_param')
+        let baseParam = nodes.filter(node =>  ['basic_param', 'basic_memory'].includes(node.type))
         // 添加用户输入数据
         if(nodes.find(node => node.type == "tool_get_message")) {
             // @ts-ignore
@@ -168,7 +169,7 @@ function Flow() {
                 if(data.id) {
                     SaveData(data.id!, graph).then(_=>Toast.success("更新成功"))
                 } else {
-                    AddData(graph).then(_=>Toast.success("保存成功"))
+                    AddGraph(graph).then(_=>Toast.success("保存成功"))
                 }
             }
         });
@@ -219,6 +220,7 @@ function Flow() {
                                 <Col span={6}><Button icon={<IconSaveStroked />} block onClick={()=>addNode('basic_variable')}>变量</Button></Col>
                                 <Col span={6}><Button icon={<IconTrueFalseStroked />} block onClick={()=>addNode('basic_rule_engine')}>规则</Button></Col>
                                 <Col span={6}><Button icon={<IconInheritStroked />} block onClick={()=>addNode('basic_switch')}>选择</Button></Col>
+                                <Col span={6}><Button icon={<IconVoteVideoStroked />} block onClick={()=>addNode('basic_memory')}>记忆</Button></Col>
                             </Row>
                         </Collapse.Panel>
                         <Collapse.Panel header="网页操作" itemKey="2">

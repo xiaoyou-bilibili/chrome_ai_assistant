@@ -1,24 +1,37 @@
 import {IDBPDatabase, openDB} from 'idb'
 import {v4} from "uuid";
-import {GraphInfo} from "./type";
+import {GraphInfo, MemoryInfo} from "./type";
 export const storeNameGraph = 'graph'
+export const storeNameMemory = 'memory'
+
 
 const getDb = ():Promise<IDBPDatabase> => {
-    return openDB('assistant', 1, {
+    return openDB('assistant', 2, {
         upgrade(db) {
             db.createObjectStore(storeNameGraph);
+            db.createObjectStore(storeNameMemory);
         }
     })
 }
 
-// 新增数据,返回唯一ID
-export const AddData = (data: GraphInfo, table:string=storeNameGraph): Promise<string> => {
+// 新增graph数据
+export const AddGraph = (data: GraphInfo, table:string=storeNameGraph): Promise<string> => {
     return new Promise(async (resolve, reject) => {
         let db = await getDb()
         // 随机生成一个ID
         data.id = v4()
         db.put(table, data, data.id).then(value => {
             resolve(data.id!)
+        })
+    })
+}
+
+// 新增memory数据
+export const AddMemory = (data: MemoryInfo, table:string=storeNameGraph): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+        let db = await getDb()
+        db.put(table, data, data.url).then(value => {
+            resolve('')
         })
     })
 }

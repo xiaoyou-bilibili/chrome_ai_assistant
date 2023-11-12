@@ -20,12 +20,6 @@ export default defineConfig(({ mode }) => {
     build: {
       emptyOutDir: mode == 'production',
       rollupOptions: {
-        external: [
-          "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css",
-          "@chatscope/chat-ui-kit-react",
-          "reactflow",
-          "reactflow/dist/style.css"
-        ],
         input: {
           popup: path.resolve(__dirname, 'popup.html'),
           options: path.resolve(__dirname, 'options.html'),
