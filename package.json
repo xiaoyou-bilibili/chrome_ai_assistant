@@ -6,6 +6,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^1.10.1",
     "@douyinfe/semi-icons": "^2.44.0",
     "@douyinfe/semi-ui": "^2.44.0",
     "@rollup/plugin-inject": "^5.0.5",
@@ -21,6 +22,7 @@
     "react-markdown": "^9.0.0",
     "react-router-dom": "^6.18.0",
     "react-syntax-highlighter": "^15.5.0",
+    "reactflow": "^11.10.1",
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {

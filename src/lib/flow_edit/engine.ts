@@ -1,4 +1,4 @@
-import {BasicParam, BasicRuleEngine, BasicStart, BasicSwitch, BasicVariable} from "./func/basic";
+import {BasicMemory, BasicParam, BasicRuleEngine, BasicStart, BasicSwitch, BasicVariable} from "./func/basic";
 import {
     ToolCallLlm,
     ToolClick, ToolGetElement, ToolGetMessage, ToolGetSelect,
@@ -17,6 +17,7 @@ const handleMap = new Map<string, any>([
     ['basic_variable', BasicVariable],
     ['basic_rule_engine', BasicRuleEngine],
     ['basic_switch', BasicSwitch],
+    ['basic_memory', BasicMemory],
     ['tool_click', ToolClick],
     ['tool_input', ToolInput],
     ['tool_remove', ToolRemove],
@@ -64,8 +65,20 @@ async function executeNode(
     }
     outMap.set(current, new Map)
     const inputs = new Map
+    // 执行前一个节点
+    let executePre = true
+    // 如果当前的节点是基本参数或记忆节点，那么还需要把全局参数塞进去
+    const currentNode = nodes.get(current)!
+    if(['basic_param', 'basic_memory'].includes(currentNode.type)) {
+        global.forEach((value, key) => {inputs.set(key, value)})
+        // 记忆节点会判断有没有值，如果有就不执行前一个节点
+        if(currentNode.type == 'basic_memory' && global.get(currentNode.data.name)) {
+            executePre = false
+        }
+    }
+
     // 获取当前节点的前一个节点
-    if(preEdges.has(current)) {
+    if(preEdges.has(current) && executePre) {
         for (const edge of preEdges.get(current)!) {
             // 只获取非流程的输入，避免往前执行
             if(edge.sourceHandle == 'base_after') {continue}
@@ -74,11 +87,6 @@ async function executeNode(
             // 不为空才插入
             if(output.get(edge.sourceHandle!)) {inputs.set(edge.targetHandle, output.get(edge.sourceHandle!))}
         }
-    }
-    // 如果当前的节点是基本参数，那么还需要把全局参数塞进去
-    const currentNode = nodes.get(current)!
-    if(currentNode.type == 'basic_param') {
-        global.forEach((value, key) => {inputs.set(key, value)})
     }
 
     // 执行当前节点获取输出

@@ -27,3 +27,9 @@ export interface GraphInfo {
     nodes: Node[] // 节点
     edges: Edge[] // 边消息
 }
+
+export interface MemoryInfo {
+    url: string
+    name: string
+    value: string
+}

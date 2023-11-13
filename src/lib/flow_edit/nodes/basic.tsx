@@ -5,7 +5,7 @@ import {
     IconHelpCircleStroked, IconInheritStroked,
     IconPlay,
     IconSaveStroked,
-    IconTextStroked, IconTrueFalseStroked
+    IconTextStroked, IconTrueFalseStroked, IconVoteVideoStroked
 } from "@douyinfe/semi-icons";
 import Text from "@douyinfe/semi-ui/lib/es/typography/text";
 import {ReactNode, useEffect, useState} from "react";
@@ -153,6 +153,18 @@ export function BasicSwitch(data: Node<{switch_info: string[]}>) {
             name={"选择节点"} icon={<IconInheritStroked />}>
             <InputNumber prefix={"分支数"} onNumberChange={setSwitchNum} hideButtons defaultValue={switchNum} max={10} min={1} />
             {outputInput}
+        </BaseNode></>
+    );
+}
+
+export function BasicMemory(data: Node<{name: string, desc: string}>) {
+    return (
+        <><BaseNode node={data} height={60} width={300}
+                    inputs={[{id: "basic_memory_in", desc: <><IconDoubleChevronRight />默认</>}]}
+                    outputs={[{id: "basic_memory_out", desc: <>输出<IconDoubleChevronRight /></>}]}
+                    name={"记忆"}  icon={<IconVoteVideoStroked />}>
+            <Input onChange={value => data.data.name = value} defaultValue={data.data.name} addonBefore={"参数名称"} />
+            <Input onChange={value => data.data.desc = value} defaultValue={data.data.desc} addonBefore={"参数描述"} />
         </BaseNode></>
     );
 }
