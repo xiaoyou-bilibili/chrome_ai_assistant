@@ -102,8 +102,8 @@ async function executeNode(
         }
 
         for (const edge of nextEdges.get(current)!) {
-            // 只执行没有执行过的
-            if(!outMap.has(edge.target)) {
+            // 只执行没有执行过的，下一个节点只执行下一边
+            if(!outMap.has(edge.target) && edge.sourceHandle == "base_after") {
                 await executeNode(edge.target, global, nodes, preEdges, nextEdges, outMap, callback)
             }
         }
