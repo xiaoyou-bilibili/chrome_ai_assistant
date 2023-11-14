@@ -98,14 +98,14 @@ export function ToolGetSelect(data: Node<object>) {
     );
 }
 
-export function ToolGetElement(data: Node<object>) {
+export function ToolGetElement(data: Node<{hint: string}>) {
     return (
         <><BaseNode
             node={data} height={30}
             inputs={[]}
             outputs={[{id: "tool_get_element_position", desc: <><IconFixedStroked />元素位置</>}]}
             name={"获取元素"} icon={<IconFixedStroked />}>
-            <Text>让用户在网页上右键选择元素<br />并返回元素位置</Text>
+            <Input onChange={value => data.data.hint = value} defaultValue={data.data.hint} addonBefore="提示" placeholder={"提示信息"} />
         </BaseNode></>
     );
 }

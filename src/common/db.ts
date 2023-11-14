@@ -27,10 +27,14 @@ export const AddGraph = (data: GraphInfo, table:string=storeNameGraph): Promise<
 }
 
 // 新增memory数据
-export const AddMemory = (data: MemoryInfo, table:string=storeNameGraph): Promise<string> => {
+export const AddMemory = (data: MemoryInfo, table:string=storeNameMemory): Promise<string> => {
     return new Promise(async (resolve, reject) => {
         let db = await getDb()
-        db.put(table, data, data.url).then(value => {
+        // 先判断一下有没有值
+        let content = await db.get(table, data.url) || {}
+        console.log(content)
+        content[data.name] = data.value
+        db.put(table, content, data.url).then(value => {
             resolve('')
         })
     })

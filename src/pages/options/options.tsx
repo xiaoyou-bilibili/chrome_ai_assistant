@@ -3,13 +3,11 @@ import type { BaseFormApi } from '@douyinfe/semi-foundation/lib/es/form/interfac
 import React, {useEffect, useState} from "react";
 import {StorageKeyConfig} from "../../common/const"
 import "./options.css"
-import {AddData, DeleteData, GetAllData} from "../../common/db";
+import {AddGraph, DeleteData, GetAllData} from "../../common/db";
 import {GraphInfo} from "../../common/type";
 import {IconDelete, IconEdit, IconExport, IconImport, IconPlus} from "@douyinfe/semi-icons";
 import {exportJson} from "../../common/utils";
 import {BeforeUploadProps} from "@douyinfe/semi-ui/lib/es/upload";
-import {shouldProcessLinkClick} from "react-router-dom/dist/dom";
-
 export default function Options() {
     const [fromApi, setFromApi] = useState<BaseFormApi>()
     const [graphList, setGraphList] = useState<GraphInfo[]>([])
@@ -41,7 +39,7 @@ export default function Options() {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const jsonData = JSON.parse(e.target?.result as string || "{}");
-                AddData(jsonData).then(showInfoAndUpdate("导入成功"))
+                AddGraph(jsonData).then(showInfoAndUpdate("导入成功"))
             };
             reader.readAsText(e.file.fileInstance);
         }

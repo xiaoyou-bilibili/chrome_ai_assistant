@@ -157,7 +157,7 @@ export function BasicSwitch(data: Node<{switch_info: string[]}>) {
     );
 }
 
-export function BasicMemory(data: Node<{name: string, desc: string}>) {
+export function BasicMemory(data: Node<{name: string, desc: string, hint: string}>) {
     return (
         <><BaseNode node={data} height={60} width={300}
                     inputs={[{id: "basic_memory_in", desc: <><IconDoubleChevronRight />默认</>}]}

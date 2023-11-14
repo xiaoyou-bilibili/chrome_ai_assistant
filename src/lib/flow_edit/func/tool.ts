@@ -44,7 +44,7 @@ export async function ToolGetSelect(input: Map<string, string>, data: object, ca
     return new Map([['tool_get_select_content', await callback(FunctionType.GetSelect, data)]])
 }
 
-export async function ToolGetElement(input: Map<string, string>, data: object, callback: HandleCallback): Promise<Map<string, string>> {
+export async function ToolGetElement(input: Map<string, string>, data: {hint: string}, callback: HandleCallback): Promise<Map<string, string>> {
     console.log("获取元素", input, data)
 
     return new Map([['tool_get_element_position', await callback(FunctionType.GetElement, data)]])

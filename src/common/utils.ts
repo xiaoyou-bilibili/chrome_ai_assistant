@@ -1,3 +1,4 @@
+// 获取url参数
 export const getUrlParam = (key: string): string =>  {
     const params = window.location.search.substring(1).split('&')
     const paramValue = params.find(param => param.startsWith(`${key}=`))
@@ -7,6 +8,7 @@ export const getUrlParam = (key: string): string =>  {
     return ""
 }
 
+// 获取元素的完整选择器
 export function getSelector(el: Element | null): string {
     if (!el || ["document", "BODY", "HTML"].includes(el.tagName)) {
         return ""
@@ -23,6 +25,7 @@ export function getSelector(el: Element | null): string {
     return `${getSelector(el.parentElement)} ${tag}`.trim()
 }
 
+// 获取随机字符串
 export function generateRandomString(length: number) {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -35,9 +38,21 @@ export function generateRandomString(length: number) {
     return result;
 }
 
+// json导出
 export const exportJson = (data: any, name:string) => {
     let link = document.createElement('a')
     link.download = `${name}.json`
     link.href = 'data:text/plain,' + JSON.stringify(data)
     link.click()
+}
+
+// 获取浏览器当前tab
+export const getCurrentTab = async (): Promise<chrome.tabs.Tab> => {
+    return new Promise((resolve, reject) => {
+        chrome.tabs.query({ active: true }, function(tabs) {
+            let currentTab = tabs.filter(tab => !tab.url?.includes("chrome-extension"));
+            currentTab.length == 0?reject('not found'):resolve(tabs[0])
+        })
+        return ""
+    })
 }

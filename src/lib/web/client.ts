@@ -1,10 +1,10 @@
 import {FunctionType, HandleFunction} from "../../common/type";
 import {getSelector} from "../../common/utils";
-import { Notification } from '@douyinfe/semi-ui';
+import {Modal, Notification} from '@douyinfe/semi-ui';
 // @ts-ignore
 import  elementsPicker from "element-picker"
 
-const functionMap = new Map([
+const functionMap = new Map<FunctionType, any>([
     [FunctionType.Input, async (data: { id: string, text: string }): Promise<string> => {
         let dom = document.querySelector(data.id)
         let evt = new InputEvent('input', {inputType: 'insertText'})
@@ -24,9 +24,9 @@ const functionMap = new Map([
     [FunctionType.GetSelect, async (data: {}): Promise<string> => {
         return window.getSelection()?.toString() || ""
     }],
-    [FunctionType.GetElement, (data: {}): Promise<string> => {
+    [FunctionType.GetElement, (data: {hint: string}): Promise<string> => {
         return new Promise((resolve, reject) => {
-            const id = Notification.info({content: '请选择元素并单击确认', title: '提示', duration: 0, position: 'top', showClose: false})
+            const id = Notification.info({content: data.hint, title: '选择元素并单击', duration: 0, position: 'top', showClose: false})
             elementsPicker.init({onClick: (ele: Element)=>{
                 Notification.close(id)
                 let position = getSelector(ele)
@@ -38,6 +38,11 @@ const functionMap = new Map([
     [FunctionType.Remove, async (data: {id: string}): Promise<string> => {
         document.querySelector(data.id)?.remove()
         return ""
+    }],
+    [FunctionType.Confirm, (data: {hint: string}): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            Modal.confirm({content: data.hint, title: '提示', onOk:()=> resolve('true'), onCancel: ()=>resolve('false')})
+        })
     }],
 ])
 

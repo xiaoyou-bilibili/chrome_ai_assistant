@@ -3,6 +3,8 @@ import {HandleCallback} from "../flow_edit/func/base";
 import {ChatPromptTemplate} from "langchain/prompts";
 import {StringOutputParser} from "langchain/schema/output_parser";
 import {GetOpenapi} from "../../common/llm";
+import {getCurrentTab} from "../../common/utils";
+import {AddMemory, storeNameMemory} from "../../common/db";
 
 export interface serverExecuteCallback {
     message_callback: (message: string) => void
@@ -36,6 +38,11 @@ export async function serverExecuteFunction (type: FunctionType, data: any): Pro
                 ["system", data.prompt]
             ]).pipe(await GetOpenapi("gpt-3.5-turbo-16k")).pipe(new StringOutputParser());
             return chain.invoke(data.data);
+        case FunctionType.AddMemory:
+            let current = await getCurrentTab()
+            console.log("保存数据库", data)
+            await AddMemory({url: current.url,  ...data}, storeNameMemory)
+            break
         default:
             // 否则就是在当前页面执行代码
             return sendMessage({function_type: type, param: data})
@@ -45,12 +52,9 @@ export async function serverExecuteFunction (type: FunctionType, data: any): Pro
 
 // 发送消息
 function sendMessage(info: HandleFunction): Promise<string> {
-    return new Promise((resolve, reject) => {
-        chrome.tabs.query({ active: true }, function(tabs) {
-            let currentTab = tabs.filter(tab => !tab.url?.includes("chrome-extension"));
-            if (currentTab.length == 0) {reject('not found');return}
-            chrome.tabs.sendMessage(currentTab[0].id!, info).then(resolve);
-        })
+    return new Promise(async (resolve, reject) => {
+        let current = await getCurrentTab()
+        chrome.tabs.sendMessage(current.id!, info).then(resolve);
         return ""
     })
 }

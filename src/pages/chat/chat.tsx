@@ -20,6 +20,7 @@ import './chat.css'
 import {GetOpenapiWithFunctions} from "../../common/llm";
 import {IconDelete} from "@douyinfe/semi-icons";
 import { BufferWindowMemory } from "langchain/memory";
+import {getCurrentTab} from "../../common/utils";
 
 export default function Chat() {
     const [messageList, setMessageList] = useState([<Message key={1} model={{direction: "incoming", message: "请问有什么可以帮助你的？", position: "single"}}></Message>])
@@ -39,13 +40,17 @@ export default function Chat() {
         addHumanMessage(msg)
         let model = await GetOpenapiWithFunctions(functionList)
         let history = await memory.current.loadMemoryVariables({})
-        console.log("历史消息", history.history)
-        let res = await model.invoke([
+        // 获取当前网页数据
+        let current_web = await getCurrentTab()
+        const inputs = [
             new SystemMessage("你是一个实用的网页助手，你可以执行不同的函数来完成用户的需求，如果用户表述不清楚，可以给出一个最可能的选项让用户来选择\n" +
-                            "注意：1.不要透露你的身份，假装你是一个人\n 2.不要直接把函数给暴露出去，只能你来执行"),
+                "注意：\n1.不要透露你的身份，假装你是一个人\n 2.不要直接把函数给暴露出去，只能你来执行\n"+
+                `上下文信息：\n当前网页 ${current_web.url}`),
             ...history.history,
             new HumanMessage(msg)
-        ])
+        ]
+        console.log("gpt输入", inputs)
+        let res = await model.invoke(inputs)
 
         let function_call = res.additional_kwargs.function_call
         let function_name = ""
@@ -75,9 +80,10 @@ export default function Chat() {
             // 先提取出所有的关键词
             let params = graphs.map(grah => {
                 let required:string[] = []
-                let properties = grah.nodes.filter(node => node.type == "basic_param").reduce((result,current) => {
+                let properties = grah.nodes.filter(node => ["basic_param", "basic_memory"].includes(node.type!)).reduce((result,current) => {
+                    let desc = `${current.data.desc}${current.type == 'basic_memory'?",你需要从上下文中进行获取，如果没有直接返回字符串":""}`
                     // @ts-ignore
-                    result[current.data.name] = {type: "string", description: current.data.desc}
+                    result[current.data.name] = {type: "string", description: desc}
                     required.push(current.data.name)
                     return result
                 }, {})

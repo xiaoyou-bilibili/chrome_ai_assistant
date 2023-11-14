@@ -12,6 +12,8 @@ export enum FunctionType {
     SendMessage,
     CallLlm,
     GetElement,
+    Confirm,
+    AddMemory,
 }
 
 export interface HandleFunction{
