@@ -27,6 +27,6 @@ export function CustomMarkDown(props: CustomMarkDownProps) {
 
 export function MarkDownMessage(props: CustomMarkDownProps) {
     return <Message model={{direction: "incoming", type: "custom", position: "single"}} >
-        <Message.CustomContent><div style={{textAlign: "left"}}><CustomMarkDown content={props.content}/></div></Message.CustomContent>
+        <Message.CustomContent style={{width: "90%"}} ><div style={{textAlign: "left"}}><CustomMarkDown content={props.content}/></div></Message.CustomContent>
     </Message>
 }

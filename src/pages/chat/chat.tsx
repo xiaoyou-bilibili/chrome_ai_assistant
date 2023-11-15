@@ -12,7 +12,7 @@ import {
 import {Button, Select, Space} from "@douyinfe/semi-ui";
 import {MarkDownMessage} from "../../component/markdown";
 import {GraphInfo} from "../../common/type";
-import {GetAllData} from "../../common/db";
+import {GetAllData, GetData, storeNameMemory} from "../../common/db";
 import {AIMessage, BaseMessage, HumanMessage, SystemMessage} from "langchain/schema";
 import {executeFunction} from "../../lib/flow_edit/engine";
 import {serverExecuteFunctionWarp} from "../../lib/web/server";
@@ -42,14 +42,21 @@ export default function Chat() {
         let history = await memory.current.loadMemoryVariables({})
         // 获取当前网页数据
         let current_web = await getCurrentTab()
+        // 查询数据库
+        let data = await GetData<{[key:string]:string}>(current_web.url||"", storeNameMemory)
+        let contextInfo = []
+        for (let key in data) {
+            contextInfo.push(`${key}:${data[key]}`)
+        }
+
         const inputs = [
             new SystemMessage("你是一个实用的网页助手，你可以执行不同的函数来完成用户的需求，如果用户表述不清楚，可以给出一个最可能的选项让用户来选择\n" +
                 "注意：\n1.不要透露你的身份，假装你是一个人\n 2.不要直接把函数给暴露出去，只能你来执行\n"+
-                `上下文信息：\n当前网页 ${current_web.url}`),
+                `上下文信息：\n ${contextInfo.join("\n")}`),
             ...history.history,
             new HumanMessage(msg)
         ]
-        console.log("gpt输入", inputs)
+        console.log("gpt输入", inputs, functionList)
         let res = await model.invoke(inputs)
 
         let function_call = res.additional_kwargs.function_call
@@ -81,7 +88,7 @@ export default function Chat() {
             let params = graphs.map(grah => {
                 let required:string[] = []
                 let properties = grah.nodes.filter(node => ["basic_param", "basic_memory"].includes(node.type!)).reduce((result,current) => {
-                    let desc = `${current.data.desc}${current.type == 'basic_memory'?",你需要从上下文中进行获取，如果没有直接返回字符串":""}`
+                    let desc = `${current.data.desc}${current.type == 'basic_memory'?",你需要从上下文中进行获取，如果没有直接返回空字符串":""}`
                     // @ts-ignore
                     result[current.data.name] = {type: "string", description: desc}
                     required.push(current.data.name)

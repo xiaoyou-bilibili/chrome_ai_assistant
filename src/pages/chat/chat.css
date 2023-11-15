@@ -1,3 +1,6 @@
 .cs-message__content p,pre {
     margin: 0;
 }
+.cs-message__content-wrapper{
+    max-width: 100%;
+}

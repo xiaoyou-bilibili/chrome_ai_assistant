@@ -11,7 +11,8 @@ const { Text } = Typography;
 
 const functionMap = new Map<FunctionType, any>([
     [FunctionType.Input, async (data: { id: string, text: string }): Promise<string> => {
-        let dom = document.querySelector(data.id)
+        let dom = document.querySelector<HTMLElement>(data.id)
+        console.log("target is", dom)
         if(dom) {
             let evt = new InputEvent('input', {inputType: 'insertText'})
             // @ts-ignore
@@ -21,8 +22,9 @@ const functionMap = new Map<FunctionType, any>([
         return ""
     }],
     [FunctionType.Click, async (data: {id: string}): Promise<string> => {
-        // @ts-ignore
-        document.querySelector(data.id)?.click()
+        let dom =document.querySelector<HTMLElement>(data.id)
+        console.log("target is", dom)
+        dom?.click()
         return ""
     }],
     [FunctionType.GetText, async (data: {id: string}): Promise<string> => {
