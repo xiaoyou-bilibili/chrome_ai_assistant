@@ -20,7 +20,7 @@ function Popup() {
         window.close()
     });
 
-    const addSkill = () => chrome.windows.create({url: `edit.html`, type: 'panel', width: 1200, height: 900}, function(w) {
+    const addSkill = () => chrome.windows.create({url: `edit.html?id=407fb0d1-3a3f-49e1-acde-11e740ec48dd`, type: 'panel', width: 1200, height: 900}, function(w) {
         window.close()
     })
 

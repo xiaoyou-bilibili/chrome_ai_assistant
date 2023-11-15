@@ -14,6 +14,7 @@ export enum FunctionType {
     GetElement,
     Confirm,
     AddMemory,
+    ToastSuccess
 }
 
 export interface HandleFunction{

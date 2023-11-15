@@ -98,14 +98,15 @@ export function ToolGetSelect(data: Node<object>) {
     );
 }
 
-export function ToolGetElement(data: Node<{hint: string}>) {
+export function ToolGetElement(data: Node<{hint: string, tag: string}>) {
     return (
         <><BaseNode
-            node={data} height={30}
+            node={data} height={60} width={300}
             inputs={[]}
             outputs={[{id: "tool_get_element_position", desc: <><IconFixedStroked />元素位置</>}]}
             name={"获取元素"} icon={<IconFixedStroked />}>
             <Input onChange={value => data.data.hint = value} defaultValue={data.data.hint} addonBefore="提示" placeholder={"提示信息"} />
+            <Input onChange={value => data.data.tag = value} defaultValue={data.data.tag} addonBefore="标签" placeholder={"标签名称,多个用逗号隔开"} />
         </BaseNode></>
     );
 }

@@ -46,11 +46,11 @@ export async function BasicMemory(input: Map<string, string>, data: {name: strin
     // 如果有输入，那么就保存
     if(input.has('basic_memory_in')) {
         // 提示是否保存
-        let confirm = await _callback(FunctionType.Confirm, {hint: "记住该选择"})
-        if(confirm == "true") {
-            console.log("保存数据")
-            await _callback(FunctionType.AddMemory, {name: data.desc, value: input.get('basic_memory_in')})
-        }
+        _callback(FunctionType.ToastSuccess, {content: "已记住该选择"})
+        // if(confirm == "true") {
+        console.log("保存数据")
+        await _callback(FunctionType.AddMemory, {name: data.desc, value: input.get('basic_memory_in')})
+        // }
     }
 
     return new Map([['basic_memory_out', input.get(data.name) || input.get('basic_memory_in') || '']])

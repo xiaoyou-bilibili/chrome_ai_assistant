@@ -26,7 +26,7 @@ export function getSelector(el: Element | null): string {
 }
 
 // 获取随机字符串
-export function generateRandomString(length: number) {
+export function generateRandomString(length: number): string {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const charactersLength = characters.length;
