@@ -26,6 +26,7 @@ export default function Chat() {
     const [messageList, setMessageList] = useState([<Message key={1} model={{direction: "incoming", message: "请问有什么可以帮助你的？", position: "single"}}></Message>])
     const [functionList, setFunctionList] = useState<any[]>([])
     const [graphList, setGraphList] = useState<GraphInfo[]>([])
+    const [skills, setSkills] = useState<string[]>(['all'])
     const memory = useRef(new BufferWindowMemory({k: 4, returnMessages: true}))
 
     const addRobotMessage = (content: string) => {
@@ -82,30 +83,42 @@ export default function Chat() {
     }
 
     useEffect(() => {
-        GetAllData<GraphInfo>().then(graphs => {
-            setGraphList(graphs)
-            // 先提取出所有的关键词
-            let params = graphs.map(grah => {
+        GetAllData<GraphInfo>().then(setGraphList)
+    }, [])
+
+    useEffect(() => {
+        // 先提取出所有的关键词
+        const isAll = skills.includes("all")
+        if(skills) {
+            let params = graphList.filter(graph => isAll || skills.includes(graph.id!)).map(graph => {
                 let required:string[] = []
-                let properties = grah.nodes.filter(node => ["basic_param", "basic_memory"].includes(node.type!)).reduce((result,current) => {
-                    let desc = `${current.data.desc}${current.type == 'basic_memory'?",你需要从上下文中进行获取，如果没有直接返回空字符串":""}`
-                    // @ts-ignore
-                    result[current.data.name] = {type: "string", description: desc}
+                let properties: {[key:string]:{type:string, description: string}} = {}
+                graph.nodes.filter(node => ["basic_param", "basic_memory"].includes(node.type!)).reduce((result,current) => {
+                    result[current.data.name] = {
+                        type: "string",
+                        description: `${current.data.desc}${current.type == 'basic_memory'?",你需要从上下文中进行获取，如果没有直接返回空字符串":""}`
+                    }
                     required.push(current.data.name)
                     return result
-                }, {})
-                return { name: grah.name, description: grah.desc, parameters: {type: "object", properties: properties, required: required}}
+                }, properties)
+                return { name: graph.name, description: graph.desc, parameters: {type: "object", properties: properties, required: required}}
             })
             console.log(params)
             setFunctionList(params)
-        })
-    }, [])
+        }
+    }, [skills])
 
+    // 清空消息
     const cleanMessage = () => {
         memory.current.clear().then(_ => {
             setMessageList([])
             addRobotMessage("上下文已清空，请继续和我对话吧！")
         })
+    }
+
+    // 下拉框被选中
+    const skillChange = (items: string[]) => {
+        setSkills(items)
     }
 
     const test = () => {
@@ -137,10 +150,14 @@ export default function Chat() {
                     <div as={MessageInput} style={{borderTop: "1px dashed #d1dbe4"}}>
                         <Space style={{margin: 5}}>
                             <Button icon={<IconDelete />} type={"primary"} onClick={cleanMessage} />
-                            <Button type={"primary"} onClick={test}>测试</Button>
-                            <Select defaultValue="simple" style={{ width: 120 }}>
-                                <Select.Option value="simple">简单模式</Select.Option>
-                                <Select.Option value="simple2">智能模式</Select.Option>
+                            {/*<Button type={"primary"} onClick={test}>测试</Button>*/}
+                            <Select multiple insetLabel={"技能"} onChange={skillChange} maxTagCount={1} style={{width: 180}} value={skills}>
+                                <Select.Option value="all">全部</Select.Option>
+                                {graphList.map(graph => <Select.Option value={graph.id}>{graph.name}</Select.Option>)}
+                            </Select>
+                            <Select insetLabel={"模式"} style={{width: 120}}  defaultValue="simple">
+                                <Select.Option value="simple">简单</Select.Option>
+                                <Select.Option value="simple2">PDDL</Select.Option>
                             </Select>
                         </Space>
                         <MessageInput style={{borderTop: 0}} placeholder="随便输点什么吧" attachButton={false} onSend={onSend} />
