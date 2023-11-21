@@ -218,7 +218,7 @@ function Flow() {
                                 <Col span={6}><Button icon={<IconPlay />} block onClick={()=>addNode('basic_start')}>开始</Button></Col>
                                 <Col span={6}><Button icon={<IconHelpCircleStroked />} block onClick={()=>addNode('basic_param')}>参数</Button></Col>
                                 <Col span={6}><Button icon={<IconSaveStroked />} block onClick={()=>addNode('basic_variable')}>变量</Button></Col>
-                                <Col span={6}><Button icon={<IconTrueFalseStroked />} block onClick={()=>addNode('basic_rule_engine')}>规则</Button></Col>
+                                {/*<Col span={6}><Button icon={<IconTrueFalseStroked />} block onClick={()=>addNode('basic_rule_engine')}>规则</Button></Col>*/}
                                 <Col span={6}><Button icon={<IconInheritStroked />} block onClick={()=>addNode('basic_switch')}>选择</Button></Col>
                                 <Col span={6}><Button icon={<IconVoteVideoStroked />} block onClick={()=>addNode('basic_memory')}>记忆</Button></Col>
                             </Row>

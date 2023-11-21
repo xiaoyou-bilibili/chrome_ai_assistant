@@ -245,7 +245,7 @@ ${multiFunctionList.join("\n")}`
                             <Select insetLabel={"模式"} onSelect={setCurrentMode} value={currentMode} style={{width: 140}}  defaultValue="simple">
                                 <Select.Option value={1}>单技能</Select.Option>
                                 <Select.Option value={2}>多技能</Select.Option>
-                                <Select.Option value={3}>自主规划</Select.Option>
+                                {/*<Select.Option value={3}>自主规划</Select.Option>*/}
                             </Select>
                         </Space>
                         <MessageInput style={{borderTop: 0}} placeholder="随便输点什么吧" attachButton={false} onSend={onSend} />
