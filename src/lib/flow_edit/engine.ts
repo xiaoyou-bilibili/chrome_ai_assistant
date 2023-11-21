@@ -69,7 +69,7 @@ async function executeNode(
     let executePre = true
     // 如果当前的节点是基本参数或记忆节点，那么还需要把全局参数塞进去
     const currentNode = nodes.get(current)!
-    if(['basic_param', 'basic_memory'].includes(currentNode.type)) {
+    if(['basic_param', 'basic_memory'].includes(currentNode.type!)) {
         global.forEach((value, key) => {inputs.set(key, value)})
         // 记忆节点会判断有没有值，如果有就不执行前一个节点
         if(currentNode.type == 'basic_memory' && global.get(currentNode.data.name)) {

@@ -52,7 +52,7 @@ export async function ToolGetElement(input: Map<string, string>, data: {hint: st
 
 export async function ToolOpenUrl(input: Map<string, string>, data: {default_url: string}, callback: HandleCallback): Promise<Map<string, string>> {
     console.log("打开网页", input, data)
-    await callback(FunctionType.OpenUrl, {url: input.get('tool_open_url_value') || data.default_url})
+    await callback(FunctionType.OpenUrl, {url: data.default_url.replace("$v", input.get('tool_open_url_value') || "")})
 
     return new Map()
 }

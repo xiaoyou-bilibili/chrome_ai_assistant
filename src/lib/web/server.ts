@@ -62,7 +62,7 @@ function sendMessage(info: HandleFunction): Promise<string> {
 // 打开网页，并且等待加载完成
 function createTabAndWait(url: string) {
     return new Promise((resolve) => {
-        if(!url.endsWith("/")) url += "/"
+        // if(!url.endsWith("/")) url += "/"
         // 先查询一下网页是否存在，不存在才创建
         chrome.tabs.query({url}, function (tabs) {
             console.log(tabs)

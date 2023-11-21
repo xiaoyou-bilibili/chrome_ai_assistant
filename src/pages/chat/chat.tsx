@@ -1,5 +1,4 @@
 import React, {useEffect, useRef, useState} from "react";
-import {ChatOpenAI} from "langchain/chat_models/openai";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
     ChatContainer,
@@ -32,6 +31,7 @@ export default function Chat() {
     const [skills, setSkills] = useState<string[]>(['all'])
     const memory = useRef(new BufferWindowMemory({k: 4, returnMessages: true}))
     const [currentMode, setCurrentMode] = useState(1)
+    const [multiFunctionList, setMultiFunctionList] = useState<string[]>([])
 
     const addRobotMessage = (content: string) => {
         setMessageList(messageList => [...messageList, <MarkDownMessage key={messageList.length+1} content={content} />])
@@ -84,14 +84,13 @@ export default function Chat() {
 
     const multiFuncMode = async (msg: string, current_web: chrome.tabs.Tab, history: MemoryVariables) => {
         const system = `你是一个功能强大的网页助手，用户输入需求，你可以结合背景知识和函数列表把用户的需求进行拆解为多个执行步骤并输出
-
 下面我会给出说明和返回格式，你需要严格按照返回的格式来进行返回，如果通过函数或者背景知识无法解决用户需求,不要询问用户，直接返回none
 ## 说明
 函数格式： '函数名称[函数描述](参数1:参数描述1,参数2:参数描述2)'。例如: video[去视频平台搜索内容](desc:内容关键词)
 不同函数会用换行隔开，你可以根据函数描述和参数描述来选择不同的函数去执行
 
 ## 返回格式
-你需要返回一个函数的列表，不要返回其他的内容，不要返回函数说明和其他无关信息，不同函数用换行隔开，函数的格式如下: 函数名称(参数1:参数1的值,参数2:参数2的值) 
+你需要返回一个函数的列表，不要返回其他的内容，不要返回函数说明和其他无关信息，不同函数用换行隔开，函数的格式如下: 函数名称(参数1:参数1的值,参数2:参数2的值)
 
 ### 例子
 函数列表：
@@ -109,19 +108,42 @@ weather(city:上海,date:2023-11-08)
 表示第一步执行video函数，参数desc的值为轻音少女，第二步执行weather函数，参数city为上海，date为2023-11-08
 
 ## 背景知识
-今天是2023年11月8号
-小游的用户id是556
 
 ## 函数列表
-google[在搜索引擎上搜索内容](desc:关键词)
-shop[在购物网站上进行购物](name:物品名称,num:物品数量)
-chat[和某人聊天](user_id:用户id,content:内容)`
+${multiFunctionList.join("\n")}`
         const chain = ChatPromptTemplate.fromMessages([
             ["system", system],
             ...history.history.map((msg: BaseMessage) => [msg._getType(), msg.content]),
             ["human", msg]
-        ]).pipe(await GetOpenapi("gpt-4")).pipe(new StringOutputParser());
+        ]).pipe(await GetOpenapi("gpt-4-1106-preview")).pipe(new StringOutputParser());
         let resp = await chain.invoke({});
+        console.log(history, system, resp)
+        // 开始解析
+        if(resp == "none") {
+            addRobotMessage("抱歉，我找不到技能来执行你的请求")
+            return
+        }
+        for (const func of resp.split("\n")) {
+            const first = func.indexOf("("), last = func.indexOf(")")
+            if(first == -1 || last == -1) {
+                return
+            }
+            let name = func.substring(0, first)
+            let params = func.substring(first+1, last).split(",")
+            addRobotMessage(`执行 \`${name}\` 中`)
+            console.log(name, params)
+            let graph = graphList.find(graph => graph.name == name)
+            if(graph) {
+                let res = await executeFunction(params.reduce((info, param) => {
+                    let params = param.split(":")
+                    return params.length === 2 ? info.set(params[0], params[1]): info
+                }, new Map), graph.nodes, graph.edges, serverExecuteFunctionWarp({
+                    message_callback: message => addRobotMessage(message),
+                    get_message: () => msg,
+                }))
+                addRobotMessage("执行完毕")
+            }
+        }
         await memory.current.saveContext({input: msg}, {output: resp})
     }
 
@@ -137,7 +159,6 @@ chat[和某人聊天](user_id:用户id,content:内容)`
             case 2:
                 await multiFuncMode(msg, current_web, history)
                 break
-
         }
     }
 
@@ -149,23 +170,30 @@ chat[和某人聊天](user_id:用户id,content:内容)`
         // 先提取出所有的关键词
         const isAll = skills.includes("all")
         if(skills) {
-            let params = graphList.filter(graph => isAll || skills.includes(graph.id!)).map(graph => {
-                let required:string[] = []
-                let properties: {[key:string]:{type:string, description: string}} = {}
-                graph.nodes.filter(node => ["basic_param", "basic_memory"].includes(node.type!)).reduce((result,current) => {
-                    result[current.data.name] = {
-                        type: "string",
-                        description: `${current.data.desc}${current.type == 'basic_memory'?",你需要从上下文中进行获取，如果没有直接返回空字符串":""}`
-                    }
-                    required.push(current.data.name)
-                    return result
-                }, properties)
-                return { name: graph.name, description: graph.desc, parameters: {type: "object", properties: properties, required: required}}
-            })
-            console.log(params)
-            setFunctionList(params)
+            if(currentMode === 1) {
+                setFunctionList(graphList.filter(graph => isAll || skills.includes(graph.id!)).map(graph => {
+                    let required:string[] = []
+                    let properties: {[key:string]:{type:string, description: string}} = {}
+                    graph.nodes.filter(node => ["basic_param", "basic_memory"].includes(node.type!)).reduce((result,current) => {
+                        result[current.data.name] = {
+                            type: "string",
+                            description: `${current.data.desc}${current.type == 'basic_memory'?",你需要从上下文中进行获取，如果没有直接返回空字符串":""}`
+                        }
+                        required.push(current.data.name)
+                        return result
+                    }, properties)
+                    return { name: graph.name, description: graph.desc, parameters: {type: "object", properties: properties, required: required}}
+                }))
+            } else if (currentMode === 2) {
+                const funcs = graphList.filter(graph => isAll || skills.includes(graph.id!)).map(graph => {
+                    let params = graph.nodes.filter(node => ["basic_param", "basic_memory"].includes(node.type!)).map(node => `${node.data.name}:${node.data.desc}`)
+                    return `${graph.name}[${graph.desc}](${params.join(",")})`
+                })
+                console.log(funcs)
+                setMultiFunctionList(funcs)
+            }
         }
-    }, [skills, graphList])
+    }, [skills, graphList, currentMode])
 
     // 清空消息
     const cleanMessage = () => {
@@ -214,7 +242,7 @@ chat[和某人聊天](user_id:用户id,content:内容)`
                                 <Select.Option value="all">全部</Select.Option>
                                 {graphList.map(graph => <Select.Option value={graph.id}>{graph.name}</Select.Option>)}
                             </Select>
-                            <Select insetLabel={"模式"} onSelect={setCurrentMode} value={currentMode} style={{width: 120}}  defaultValue="simple">
+                            <Select insetLabel={"模式"} onSelect={setCurrentMode} value={currentMode} style={{width: 140}}  defaultValue="simple">
                                 <Select.Option value={1}>单技能</Select.Option>
                                 <Select.Option value={2}>多技能</Select.Option>
                                 <Select.Option value={3}>自主规划</Select.Option>
